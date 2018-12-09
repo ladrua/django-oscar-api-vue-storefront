@@ -14,9 +14,22 @@ class MyProductLinkSerializer(product.ProductLinkSerializer):
     name = serializers.CharField(source='title')
     created_at = serializers.DateTimeField(source='date_created')
     updated_at = serializers.DateTimeField(source='date_updated')
-
+    has_options = serializers.ReadOnlyField(default=0)
+    type_id = serializers.ReadOnlyField(default="simple")
+    
     class Meta(product.ProductLinkSerializer.Meta):
-        fields = ('url', 'id', 'name', 'images', 'price', 'created_at', 'updated_at', 'description')
+        fields = (
+            'id',
+            'name',
+            'images',
+            'price',
+            'created_at',
+            'updated_at',
+            'description',
+            'sku',
+            'has_options',
+            'type_id'
+        )
 
     def get_price(self, obj):
         request = self.context.get("request")
@@ -27,4 +40,4 @@ class MyProductLinkSerializer(product.ProductLinkSerializer):
             strategy.fetch_for_product(obj).price,
             context={'request': request})
 
-        return ser.data
+        return float(ser.data['incl_tax'])
