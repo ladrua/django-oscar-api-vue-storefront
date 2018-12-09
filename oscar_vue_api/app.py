@@ -8,7 +8,7 @@ class MyRESTApiApplication(RESTApiApplication):
     def get_urls(self):
         urls = [
             url(r'^auth/admin', obtain_auth_token),
-            url(r'^products/$', views.ProductList.as_view(), name='product-list'),
+            url(r'^products/index', views.ProductList.as_view(), name='product-list'),
         ]
         return urls + super(MyRESTApiApplication, self).get_urls()
 

@@ -16,7 +16,7 @@ class MyProductLinkSerializer(product.ProductLinkSerializer):
     updated_at = serializers.DateTimeField(source='date_updated')
 
     class Meta(product.ProductLinkSerializer.Meta):
-        fields = ('url', 'id', 'name', 'images', 'price', 'created_at', 'updated_at')
+        fields = ('url', 'id', 'name', 'images', 'price', 'created_at', 'updated_at', 'description')
 
     def get_price(self, obj):
         request = self.context.get("request")
