@@ -45,10 +45,7 @@ setup(
     # specify dependencies
     install_requires=[
         'setuptools',
-        'django-oscar>=1.5.1',
-        'djangorestframework>=3.4',
-        'django-oscar-api',
-        'six'
+        'django-oscar-api'
     ],
     # mark test target to require extras.
     extras_require={
