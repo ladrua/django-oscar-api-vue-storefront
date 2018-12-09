@@ -1,0 +1,6 @@
+include *.rst
+include LICENSE
+include Makefile
+recursive-include oscarapi *.py
+recursive-include oscarapi *.xml
+recursive-include sandbox *.py
