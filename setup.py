@@ -45,6 +45,7 @@ setup(
     # specify dependencies
     install_requires=[
         'setuptools',
+        'elasticsearch-dsl',
         'django-oscar-api'
     ],
     # mark test target to require extras.
