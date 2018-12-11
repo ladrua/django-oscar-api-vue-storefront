@@ -5,5 +5,5 @@ class Command(BaseCommand):
     help = "Export products to ElasticSearch"
 
     def handle(self, *args, **kwargs):
-        bulk = search.bulk_indexing()
+        bulk_products = search.bulk_indexing_products()
         self.stdout.write("Just finished indexing")

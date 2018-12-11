@@ -37,3 +37,9 @@ Developing
        ....
        url(r'^vsbridge/', api.urls),
    ]
+
+
+Notes
+=====
+
+``curl -X DELETE 'http://localhost:9200/_all'``

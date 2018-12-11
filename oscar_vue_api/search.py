@@ -2,7 +2,7 @@ from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import DocType, Text, Date, Integer, Float, Boolean, Object, Nested
 from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
-from oscar.core.loading import get_model
+from oscar.core.loading import get_model, get_class
 
 connections.create_connection(hosts=['elastic:changeme@db.local'], timeout=20)
 
@@ -33,7 +33,12 @@ class ProductsIndex(DocType):
     special_from_date = Date()
     special_to_date = Date()
     stock_item = Object(properties={'is_in_stock': Boolean()})
-    category = Text()
+    category = Nested(
+        properties = {
+            'category_id': Integer(),
+            'name': Text(),
+        }
+    )
     stock = Object(properties={'is_in_stock': Boolean()})
     configurable_children = Nested(
         properties = {
@@ -45,25 +50,63 @@ class ProductsIndex(DocType):
         }
     )
 
-    
-
     class Index:
-        name = 'products-index'
+        name = 'storefront_catalog'
+        doc_type = 'product'
+
+    class Meta:
+        doc_type = 'product'
 
 
-def bulk_indexing():
+def bulk_indexing_products():
     ProductsIndex().init()
     es = connections.get_connection()
     Product = get_model('catalogue', 'product')
-    bulk(client=es, actions=(obj_indexing(b) for b in Product.objects.all().iterator()))
+    bulk(client=es, actions=(obj_indexing_product(b) for b in Product.objects.all().iterator()))
 
-def obj_indexing(product):
+def obj_indexing_product(product):
+    if product.wimages.first():
+        image=product.wimages.first().image.file.path
+    else:
+        image=""
+    all_categories = []
+    for category in product.categories.all():
+        category_mapping = [{
+            'category_id': category.id,
+            'name': category.title
+        }]
+        #all_categories.update(category_mapping)
+        all_categories += category_mapping
+        
     obj = ProductsIndex(
-        meta={'id': product.id},
+        meta={
+            'id': product.id,
+        },
         type_id="simple",
         sku=product.sku,
         name=product.title,
-        #price=product.price,
+        price=200,
+        image=image,
+        description=product.description,
+        category=all_categories,
     )
     obj.save()
     return obj.to_dict(include_meta=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
