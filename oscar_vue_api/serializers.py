@@ -7,6 +7,58 @@ from oscarapi.serializers import checkout, product
 
 Selector = get_class('partner.strategy', 'Selector')
 
+class BasketItemSerializer(serializers.Serializer):
+    sku = serializers.CharField(source='product.sku')
+    qty = serializers.IntegerField(source='quantity')
+    item_id = serializers.IntegerField(source='id')
+    
+    class Meta:
+        fields = '__all__'
+        
+class WrapperBasketItemSerializer(serializers.Serializer):
+    cartItem = serializers.SerializerMethodField()
+
+    def get_cartItem(self, obj):
+        sub_data = SubSerializer(obj)
+        return sub_data.data
+        
+    class Meta:
+        fields = '__all__'
+
+class BasketUpdateResponseSerializer(serializers.Serializer):
+    item_id = serializers.CharField()
+    sku = serializers.CharField()
+    qty = serializers.IntegerField()
+    name = serializers.CharField()
+    price = serializers.IntegerField()
+    product_type = serializers.CharField(default="simple")
+    quote_id = serializers.IntegerField()
+
+    class Meta:
+        fields = '__all_'
+
+
+class UserSerializer(serializers.Serializer):
+
+    group_id = serializers.ReadOnlyField(default=1)
+    created_at = serializers.DateTimeField(source='date_joined')
+    updated_at = serializers.DateTimeField(source='date_joined')
+    created_in =serializers.ReadOnlyField(default="Default")
+    email = serializers.EmailField()
+    firstname = serializers.CharField(source='first_name')
+    lastname = serializers.CharField(source='last_name')
+    
+    class Meta():
+        fields = (
+            'id',
+            'group_id',
+            'created_at',
+            'updated_at',
+            'created_in',
+            'email',
+            'firstname',
+            'lastname',
+        )
 
 class MyProductLinkSerializer(product.ProductLinkSerializer):
     images = product.ProductImageSerializer(many=True, required=False)

@@ -46,6 +46,7 @@ setup(
     install_requires=[
         'setuptools',
         'elasticsearch-dsl',
+        'django-cors-headers',
         'django-oscar-api'
     ],
     # mark test target to require extras.

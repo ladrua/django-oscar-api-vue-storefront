@@ -6,4 +6,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         bulk_products = search.bulk_indexing_products()
+        bulk_categories = search.bulk_indexing_categories()
+        bulk_taxrules = search.bulk_indexing_taxrules()
         self.stdout.write("Just finished indexing")

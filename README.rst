@@ -17,6 +17,8 @@ Notes
 
 `Better definition of required fields <https://github.com/DivanteLtd/bigcommerce2vuestorefront/tree/master/src/templates>`_
 
+`Data Definitions <https://divanteltd.github.io/vue-storefront/guide/data/elasticsearch.html#product-type>`_
+
 Developing
 ==========
 
@@ -43,3 +45,15 @@ Notes
 =====
 
 ``curl -X DELETE 'http://localhost:9200/_all'``
+
+Add to settings:
+INSTALLED_APPS = (
+    ##...
+    'corsheaders'
+)
+MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
+    #...
+)
+
+CORS_ORIGIN_ALLOW_ALL = True
