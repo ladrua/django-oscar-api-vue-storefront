@@ -7,6 +7,56 @@ from oscarapi.serializers import checkout, product
 
 Selector = get_class('partner.strategy', 'Selector')
 
+class TotalSegmentSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    title = serializers.CharField()
+    value = serializers.DecimalField(decimal_places=2, max_digits=12)
+    
+    class Meta:
+        fields = '__all__'
+        
+class FullBasketItemSerializer(serializers.Serializer):
+    item_id = serializers.IntegerField(source='id')
+    price = serializers.IntegerField(source='price_incl_tax')
+    base_price = serializers.IntegerField(source='price_excl_tax')
+    qty = serializers.IntegerField(source='quantity')
+    row_total = serializers.IntegerField(source='price_incl_tax')
+    base_row_total = serializers.IntegerField(source='price_excl_tax')
+    row_total_with_discount = serializers.IntegerField(source='price_incl_tax')
+    tax_amount = serializers.IntegerField(default=0)
+    base_tax_amount = serializers.IntegerField(default=0)
+    tax_percent = serializers.IntegerField(default=0)
+    discount_amount = serializers.IntegerField(default=0)
+    base_discount_amount = serializers.IntegerField(default=0)
+    discount_percent = serializers.IntegerField(default=0)
+    options = serializers.ListField(default=None)
+    wee_tax_applied_amount = serializers.IntegerField(default=0)
+    wee_tax_applied = serializers.IntegerField(default=0)
+    name = serializers.CharField(source='product.title')
+    product_option = serializers.ListField(default=None)
+
+    class Meta:
+        fields = '__all__'
+    
+    
+
+class FullBasketSerializer(serializers.Serializer):
+    grand_total = serializers.IntegerField(source='total_incl_tax_excl_discounts')
+    weee_tax_applied_amount = serializers.IntegerField(default=0)
+    base_currency_code = serializers.CharField(source='currency')
+    quote_currency_code = serializers.CharField(source='currency')
+    items_qty = serializers.IntegerField(source='num_items')
+    items = FullBasketItemSerializer(many=True, source='lines')
+    total_segments = serializers.SerializerMethodField()
+
+    def get_total_segments(self, obj):
+        segments = TotalSegmentSerializer(many=True, data=self.context['total_segments'])
+        segments.is_valid()
+        return segments.data
+    class Meta:
+        fields = '__all__'
+    
+
 class BasketItemSerializer(serializers.Serializer):
     sku = serializers.CharField(source='product.sku')
     qty = serializers.IntegerField(source='quantity')

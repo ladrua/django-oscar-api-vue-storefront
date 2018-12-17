@@ -13,6 +13,8 @@ class MyRESTApiApplication(RESTApiApplication):
             url(r'^cart/pull', views.PullBasketView.as_view()),
             url(r'^cart/update', views.UpdateBasketItemView.as_view()),
             url(r'^cart/delete', views.DeleteBasketItemView.as_view()),
+            url(r'^cart/totals', views.BasketTotalsView.as_view()),
+            url(r'^cart/shipping-information', views.BasketTotalsView.as_view()),
             #url(r'^products/index', views.ProductList.as_view(), name='product-list'),
             url(r'^catalog', views.ElasticView.as_view()),
         ]
