@@ -65,6 +65,7 @@ class BasketItemSerializer(serializers.Serializer):
     name = serializers.CharField(source='product.title')
     product_type = serializers.CharField(default='simple')
     quote_id = serializers.CharField(source='basket.id')
+    product_option = serializers.DictField(default={})
     
     class Meta:
         fields = '__all__'
