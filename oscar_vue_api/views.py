@@ -4,6 +4,7 @@ from oscarapi.views import product, basket
 
 from .serializers import *
 from .services import elastic_result
+from .renderers import CustomJSONRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from oscarapi.basket import operations
@@ -23,6 +24,9 @@ selector = Selector()
 #    serializer_class = MyProductLinkSerializer
 
 class CurrentUserView(APIView):
+
+    renderer_classes = (CustomJSONRenderer, )
+    
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
@@ -34,13 +38,16 @@ class CreateBasketView(APIView):
     Retrieve your basket id.
     """
 
+    renderer_classes = (CustomJSONRenderer, )
+    
     def post(self, request, format=None):
         basket = operations.get_basket(request)
         return Response(basket.id)
 
 class PullBasketView(APIView):
-    #renderer_classes = (JSONRenderer, )
 
+    renderer_classes = (CustomJSONRenderer, )
+    
     def get(self, request, format=None):
         basket_id = request.query_params.get('cartId')
         basket = BasketModel.objects.filter(pk=basket_id).first()
@@ -50,7 +57,8 @@ class PullBasketView(APIView):
         return Response(serializer.data)
 
 class UpdateBasketItemView(APIView):
-    #renderer_classes = (JSONRenderer, )
+
+    renderer_classes = (CustomJSONRenderer, )
     
     def validate(self, basket, product, quantity, options):
         availability = basket.strategy.fetch_for_product(
@@ -109,7 +117,8 @@ class UpdateBasketItemView(APIView):
         return Response(response.data)
 
 class DeleteBasketItemView(APIView):
-
+    renderer_classes = (CustomJSONRenderer, )
+    
     def post(self, request):
         line_id = request.data['cartItem']['item_id']
         line = LineModel.objects.filter(pk=line_id).first()
@@ -117,6 +126,8 @@ class DeleteBasketItemView(APIView):
         return Response(response)
 
 class BasketTotalsView(APIView):
+    renderer_classes = (CustomJSONRenderer, )
+    
     def post(self, request, format=None):
         return self.do_it(request)
     

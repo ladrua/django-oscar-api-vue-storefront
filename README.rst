@@ -28,8 +28,15 @@ Developing
 ::
    INSTALLED_APPS = [
        ....
-       'oscar_vue_api'
+       'rest_framework',
+       'corsheaders',
+       'oscar_vue_api',
    ]
+   MIDDLEWARE = (
+       'corsheaders.middleware.CorsMiddleware',
+       #...
+   )
+   CORS_ORIGIN_ALLOW_ALL = True
 
 3. Import the api urls to your projects ``urls.py`` file:
 ::
@@ -46,14 +53,5 @@ Notes
 
 ``curl -X DELETE 'http://localhost:9200/_all'``
 
-Add to settings:
-INSTALLED_APPS = (
-    ##...
-    'corsheaders'
-)
-MIDDLEWARE_CLASSES = (
-    'corsheaders.middleware.CorsMiddleware',
-    #...
-)
 
-CORS_ORIGIN_ALLOW_ALL = True
+
