@@ -64,7 +64,7 @@ def obj_indexing_taxrule():
         
     )
     obj.save()
-    return obj.to_dict(include_meta=True)
+    return obj.to_dict(include_meta=True, skip_empty=False)
 
         
 class CategoriesIndex(DocType):
@@ -76,7 +76,7 @@ class CategoriesIndex(DocType):
     level = Integer()
     product_count = Integer()
     include_in_menu = Integer()
-    children_data = Text()
+    children_data = Object()
     tsk = Long()
     sgn = Text()
     
@@ -91,29 +91,53 @@ def bulk_indexing_categories():
     CategoriesIndex().init()
     es = connections.get_connection()
     Category = get_model('catalogue', 'category')
-    bulk(client=es, actions=(obj_indexing_category(b) for b in Category.objects.all().iterator()))
+    bulk(client=es, actions=(obj_indexing_category(b) for b in Category.get_root_nodes().iterator()))
 
 def obj_indexing_category(category):
-
-    obj = CategoriesIndex(
-        meta={
-            'id': category.id,
-        },
-        id = category.id,
-        parent_id = None,
-        name = category.name,
-        is_active = True,
-        position = 2,
-        level = 2,
-        product_count = 1,
-        children_data = "",
-        tsk = 0,
-        include_in_menu = 0,
-        sgn = "",
-        
-    )
-    obj.save()
-    return obj.to_dict(include_meta=True)
+    rootpage = category.get_root()
+    depth = category.get_depth()
+    if True:
+    
+    
+        children_data = []
+        if category.get_children():
+            for child in category.get_children():
+                depth = child.get_depth()
+                obj_child = {
+                    'id': child.id,
+                    'parent_id': category.id,
+                    'name': child.name,
+                    'is_active': True,
+                    'position': depth + 1,
+                    'level': depth + 1,
+                    'children_data': "",
+                    'tsk': 0,
+                    'include_in_menu': 0,
+                    'sgn': "",
+                    
+                }
+                children_data.append(obj_child)
+ 
+        depth = category.get_depth()
+        obj = CategoriesIndex(
+            meta={
+                'id': category.id,
+            },
+            id = category.id,
+            parent_id = 0,
+            name = category.name,
+            is_active = True,
+            position = 2,
+            level = depth + 1,
+            product_count = 1,
+            children_data = children_data,
+            tsk = 0,
+            include_in_menu = 0,
+            sgn = "",
+            
+        )
+        obj.save()
+        return obj.to_dict(include_meta=True, skip_empty=False)
 
 
 class ProductsIndex(DocType):
@@ -135,6 +159,7 @@ class ProductsIndex(DocType):
     category = Object(
         properties = {
             'category_id': Long(),
+
             'name': Text(),
         }
     )
@@ -147,7 +172,7 @@ class ProductsIndex(DocType):
     has_options = Integer()
     url_key = Text()
     tax_class_id = Integer()
-    children_data = Text()
+    children_data = Object()
 
     configurable_options = Object()
     configurable_children = Object()
@@ -229,7 +254,7 @@ def obj_indexing_product(product):
         has_options=0,
         url_key=product.slug,
         tax_class_id=2,
-        children_data="",
+        children_data={},
         configurable_options=[],
         configurable_children=[],
         category_ids=category_ids,
