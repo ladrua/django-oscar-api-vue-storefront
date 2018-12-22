@@ -37,6 +37,12 @@ Developing
        #...
    )
    CORS_ORIGIN_ALLOW_ALL = True
+   REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        ....
+        'oscar_vue_api.authentication.TokenAuthSupportQueryString',
+    )
+   }
 
 3. Import the api urls to your projects ``urls.py`` file:
 ::
@@ -51,7 +57,7 @@ Developing
 Notes
 =====
 
-``curl -X DELETE 'http://localhost:9200/_all'``
+Delete all ElasticSearch entries``curl -X DELETE 'http://localhost:9200/_all'``
 
 
 

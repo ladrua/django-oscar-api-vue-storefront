@@ -101,7 +101,7 @@ def obj_indexing_category(category):
         },
         id = category.id,
         parent_id = None,
-        name = category.title,
+        name = category.name,
         is_active = True,
         position = 2,
         level = 2,
@@ -182,27 +182,28 @@ def bulk_indexing_products():
     bulk(client=es, actions=(obj_indexing_product(b) for b in Product.objects.all().iterator()))
 
 def obj_indexing_product(product):
-    if product.wimages.first():
-        image=product.wimages.first().image.file.path
+    if product.images.first():
+        image=product.images.first().original.path
     else:
         image=""
 
     all_categories = []
-    category_ids = [str(14)]
+    category_ids = []
     for category in product.categories.all():
         category_mapping = [{
             'category_id': category.id,
-            'name': category.title
+            'name': category.name
         }]
         #category_ids += str(category.id)
         all_categories += category_mapping
+        category_ids.append(category.id)
         
     obj = ProductsIndex(
         meta={
             'id': product.id,
         },
         id = product.id,
-        sku=product.sku,
+        sku=product.upc,
         name=product.title,
         attribute_set_id=None,
         price=200.00,
