@@ -103,6 +103,7 @@ class UpdateBasketItemView(APIView):
                     status=status.HTTP_406_NOT_ACCEPTABLE)
             line = basket.add_product(product, quantity, options=None)
             line_id = line[0].id
+        
         response_item = {}
         response_item['item_id'] = line_id
         response_item['sku'] = product_sku

@@ -182,6 +182,7 @@ def bulk_indexing_products():
     bulk(client=es, actions=(obj_indexing_product(b) for b in Product.objects.all().iterator()))
 
 def obj_indexing_product(product):
+    Selector = get_class('partner.strategy', 'Selector')
     if product.images.first():
         image=product.images.first().original.path
     else:
@@ -197,7 +198,8 @@ def obj_indexing_product(product):
         #category_ids += str(category.id)
         all_categories += category_mapping
         category_ids.append(category.id)
-        
+    strategy = Selector().strategy()
+    price = strategy.fetch_for_product(product).price
     obj = ProductsIndex(
         meta={
             'id': product.id,
@@ -206,8 +208,8 @@ def obj_indexing_product(product):
         sku=product.upc,
         name=product.title,
         attribute_set_id=None,
-        price=200.00,
-        priceInclTax=200.00,
+        price=price.incl_tax,
+        priceInclTax=price.incl_tax,
         status=1,
         visibility=4,
         type_id="simple",
