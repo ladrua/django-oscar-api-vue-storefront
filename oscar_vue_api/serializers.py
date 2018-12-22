@@ -58,7 +58,7 @@ class FullBasketSerializer(serializers.Serializer):
     
 
 class BasketItemSerializer(serializers.Serializer):
-    sku = serializers.CharField(source='product.sku')
+    sku = serializers.CharField(source='product.upc')
     qty = serializers.IntegerField(source='quantity')
     item_id = serializers.IntegerField(source='id')
     price = serializers.IntegerField(source='price_incl_tax')

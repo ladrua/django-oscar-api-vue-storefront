@@ -84,7 +84,7 @@ class UpdateBasketItemView(APIView):
         quantity = int(request.data['cartItem']['qty'])
         product_sku = request.data['cartItem']['sku']
         quote_id = request.data['cartItem']['quoteId']
-        product = ProductModel.objects.filter(sku=product_sku).first()
+        product = ProductModel.objects.filter(upc=product_sku).first()
         
         if 'item_id' in request.data['cartItem']:
             line_id = request.data['cartItem']['item_id']
