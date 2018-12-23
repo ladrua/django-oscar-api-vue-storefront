@@ -57,7 +57,9 @@ Developing
 Notes
 =====
 
-Delete all ElasticSearch entries``curl -X DELETE 'http://localhost:9200/_all'``
+Export exsisting categories and products to elasticsearch: ``./manage.py oav_export``
+
+Delete all ElasticSearch entries ``curl -X DELETE 'http://localhost:9200/_all'``
 
 
 
