@@ -1,5 +1,5 @@
 from elasticsearch_dsl.connections import connections
-from elasticsearch_dsl import DocType, Text, Date, Integer, Float, Boolean, Object, Nested, Keyword, Long
+from elasticsearch_dsl import DocType, Text, Date, Integer, Float, Boolean, Object, Nested, Keyword, Long, InnerDoc
 from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from oscar.core.loading import get_model, get_class
@@ -76,7 +76,27 @@ class CategoriesIndex(DocType):
     level = Integer()
     product_count = Integer()
     include_in_menu = Integer()
-    children_data = Object()
+    children_data = Nested(include_in_parent=True)
+    tsk = Long()
+    sgn = Text()
+    
+    class Index:
+        name = 'vue_storefront_catalog'
+        doc_type = 'category'
+
+    class Meta:
+        doc_type = 'category'
+
+class InnerCategoriesIndex(InnerDoc):
+    id = Integer()
+    parent_id = Integer()
+    name = Text()
+    is_active = Boolean()
+    position = Integer()
+    level = Integer()
+    product_count = Integer()
+    include_in_menu = Integer()
+    children_data = Nested(include_in_parent=True)
     tsk = Long()
     sgn = Text()
     
@@ -93,51 +113,53 @@ def bulk_indexing_categories():
     Category = get_model('catalogue', 'category')
     bulk(client=es, actions=(obj_indexing_category(b) for b in Category.get_root_nodes().iterator()))
 
+def category_subs(category, parent):
+    depth = category.get_depth()
+    sub_categories = []
+    obj = InnerCategoriesIndex(
+        id = category.id,
+        parent_id = parent.id,
+        name = category.name,
+        is_active = True,
+        position = 2,
+        level = depth + 1,
+        product_count = 1,
+        children_data = {},
+        tsk = 0,
+        include_in_menu = 0,
+        sgn = "",
+    )
+    obj.children_data
+    return obj.to_dict(skip_empty=False)
+    
 def obj_indexing_category(category):
     rootpage = category.get_root()
     depth = category.get_depth()
-    if True:
-    
-    
-        children_data = []
-        if category.get_children():
-            for child in category.get_children():
-                depth = child.get_depth()
-                obj_child = {
-                    'id': child.id,
-                    'parent_id': category.id,
-                    'name': child.name,
-                    'is_active': True,
-                    'position': depth + 1,
-                    'level': depth + 1,
-                    'children_data': "",
-                    'tsk': 0,
-                    'include_in_menu': 0,
-                    'sgn': "",
-                    
-                }
-                children_data.append(obj_child)
- 
-        depth = category.get_depth()
-        obj = CategoriesIndex(
-            meta={
-                'id': category.id,
-            },
-            id = category.id,
-            parent_id = 0,
-            name = category.name,
-            is_active = True,
-            position = 2,
-            level = depth + 1,
-            product_count = 1,
-            children_data = children_data,
-            tsk = 0,
-            include_in_menu = 0,
-            sgn = "",
-            
-        )
-        obj.save()
-        return obj.to_dict(include_meta=True, skip_empty=False)
+    children_data = []
+    if category.get_children():
+        for child in category.get_children():
+            obj_child = category_subs(child, category)
+            children_data.append(obj_child)
+                
+    depth = category.get_depth()
+    obj = CategoriesIndex(
+        meta={
+            'id': category.id,
+        },
+        id = category.id,
+        parent_id = 0,
+        name = category.name,
+        is_active = True,
+        position = 2,
+        level = depth + 1,
+        product_count = 1,
+        children_data = children_data,
+        tsk = 0,
+        include_in_menu = 0,
+        sgn = "",
+    )
+    obj.save(skip_empty=False)
+    return obj.to_dict(include_meta=True, skip_empty=False)
 
 
 class ProductsIndex(DocType):
@@ -172,7 +194,7 @@ class ProductsIndex(DocType):
     has_options = Integer()
     url_key = Text()
     tax_class_id = Integer()
-    children_data = Object()
+    children_data = Nested()
 
     configurable_options = Object()
     configurable_children = Object()
